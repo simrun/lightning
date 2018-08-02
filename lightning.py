@@ -15,7 +15,7 @@ input_device = soundcard.get_microphone('Rocksmith')
 
 # Collapse octaves and map notes linearly between 0 and 1
 def normalise(freq):
-    base_freq = 440 * 2**(-29/12) # guitar open sixth string (E2)
+    base_freq = 440 * 2**(-29/12)  # guitar open sixth string (E2)
 
     if freq == 0:
         freq += base_freq
