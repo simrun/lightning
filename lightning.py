@@ -3,13 +3,14 @@ import numpy as np
 import soundcard
 import aubio
 
-hop_size = 3072 # we measure pitch every hop_size frames
-window = 8192 # number of previous frames analysed for each pitch measurement
 sample_rate = 44100
+
+hop_size = round(sample_rate * 1/1000) # we take a pitch measurement every hop_size frames
+window = 2048 # number of previous frames analysed for each pitch measurement
 
 pitcher = aubio.pitch("default", window, hop_size, sample_rate)
 
-guitar = soundcard.get_microphone('Rocksmith')
+input_device = soundcard.get_microphone('Rocksmith')
 
 # Collapse octaves and map notes linearly between 0 and 1
 def normalise(freq):
@@ -24,8 +25,10 @@ def normalise(freq):
 
     return np.log2(freq) - np.log2(base_freq)
 
-while True:
-    samples = np.array(guitar.record(hop_size, sample_rate), dtype=np.float32)
-    freq = pitcher(samples)[0]
 
-    print("%.2f" % normalise(freq),  end='\r')
+with input_device.recorder(sample_rate) as recorder:
+    while True:
+        samples = np.array(recorder.record(hop_size), dtype=np.float32)
+        freq = pitcher(samples)[0]
+
+        print("%.2f" % normalise(freq),  end='\r')
